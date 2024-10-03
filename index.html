@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kviz tablica množenja</title>
+    <title>Masa’s Mega Multiplication Quiz</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -17,7 +17,8 @@
         }
 
         .card {
-            background-color: rgba(255, 255, 255, 0.8); /* Transparentna pozadina za karticu */
+            background-color: rgba(255, 255, 255, 0.8);
+            /* Transparent card background */
         }
     </style>
 </head>
@@ -25,38 +26,39 @@
 <body class="bg-light">
     <div class="container mt-5">
         <div class="card p-4">
-            <h1 class="text-center">Masina Kviz Tablica Množenja</h1>
+            <h1 class="text-center">Masa’s Mega Multiplication Quiz!</h1>
 
-            <!-- Odabir raspona tablice množenja -->
+            <!-- Range of multiplication table selection -->
             <div class="mb-3">
-                <label for="range" class="form-label">Odaberi raspon (1 - X):</label>
+                <label for="range" class="form-label">Enter the biggest number to multiply by: </label>
                 <input type="number" id="range" min="1" max="20" value="12" class="form-control">
             </div>
 
-            <!-- Odabir broja zadataka -->
+            <!-- Number of tasks selection -->
             <div class="mb-3">
-                <label for="taskCount" class="form-label">Koliko zadataka želiš riješiti:</label>
+                <label for="taskCount" class="form-label">How many tasks do you want to solve:</label>
                 <input type="number" id="taskCount" min="1" max="100" value="10" class="form-control">
             </div>
 
-            <button id="startBtn" class="btn btn-primary w-100 mb-4">Započni kviz</button>
+            <button id="startBtn" class="btn btn-primary w-100 mb-4">Ready? Start the quiz!</button>
 
-            <!-- Sekcija za kviz -->
+            <!-- Quiz section -->
             <div id="quizSection" style="display: none;">
                 <p id="question" class="h4 text-center"></p>
-                <input type="number" id="answer" class="form-control mb-3" placeholder="Upiši odgovor">
-                <button id="submitBtn" class="btn btn-success w-100 mb-3">Pošalji</button>
+                <input type="number" id="answer" class="form-control mb-3" placeholder="Type your answer here">
+                <button id="submitBtn" class="btn btn-success w-100 mb-3">Submit</button>
                 <p id="feedback" class="text-center fw-bold"></p>
-                <p id="timer" class="text-center text-danger">Vrijeme: <span id="timeLeft">5</span> sekundi</p>
+                <p id="timer" class="text-center text-danger">Time left: <span id="timeLeft">5</span> seconds</p>
             </div>
 
-            <!-- Sekcija za rezultate -->
+            <!-- Results section -->
             <div id="resultsSection" style="display: none;">
-                <h2 class="text-center">Rezultati</h2>
-                <p class="text-center">Postotak točnih odgovora: <span id="correctPercentage"></span>%</p>
-                <p class="text-center">Ukupno vrijeme: <span id="totalTime"></span> sekundi</p>
-                <p id="bravoMessage" class="text-center" style="display: none; font-size: 24px; font-weight: bold; color: green;">BRAVOOOO MASOOOO!!!!!!</p>
-                <button id="startOverBtn" class="btn btn-warning w-100">Počni iznova</button>
+                <h2 class="text-center">Results</h2>
+                <p class="text-center">Correct answer percentage: <span id="correctPercentage"></span>%</p>
+                <p class="text-center">Total time: <span id="totalTime"></span> seconds</p>
+                <p id="bravoMessage" class="text-center"
+                    style="display: none; font-size: 24px; font-weight: bold; color: green;">BRAVOOOO MASA!!!! DAD IS PROUD OF YOU!!!!!</p>
+                <button id="startOverBtn" class="btn btn-warning w-100">Start over</button>
             </div>
         </div>
     </div>
@@ -83,19 +85,19 @@
         let correctAnswer, timeLeft, timer, maxRange, maxTasks;
         let correctAnswers = 0, totalTasks = 0, startTime;
 
-        // Funkcija za generiranje novog pitanja
+        // Function to generate a new question
         function generateQuestion() {
             const num1 = Math.floor(Math.random() * maxRange) + 1;
             const num2 = Math.floor(Math.random() * maxRange) + 1;
             correctAnswer = num1 * num2;
             questionEl.textContent = `${num1} x ${num2}`;
-            startTimer(); // Pokreće tajmer nakon generiranja pitanja
+            startTimer(); // Start timer after generating question
         }
 
-        // Funkcija za pokretanje tajmera
+        // Function to start the timer
         function startTimer() {
-            clearInterval(timer); // Osigurava da se prethodni tajmer zaustavi
-            timeLeft = 5; // Postavlja vrijeme na 5 sekundi
+            clearInterval(timer); // Ensures previous timer is stopped
+            timeLeft = 10; // Sets time to 10 seconds
             timerEl.textContent = timeLeft;
 
             timer = setInterval(() => {
@@ -104,96 +106,96 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    feedbackEl.textContent = `Zakasnio si! Točan odgovor je bio: ${correctAnswer}`;
-                    handleNextQuestion(false); // Ako je vrijeme isteklo
+                    feedbackEl.textContent = `Time's up! The correct answer was: ${correctAnswer}`;
+                    handleNextQuestion(false); // If time runs out
                 }
             }, 1000);
         }
 
-        // Funkcija koja obrađuje prelazak na sljedeće pitanje
+        // Function to handle moving to the next question
         function handleNextQuestion(isCorrect) {
             if (isCorrect) {
                 correctAnswers++;
             }
 
-            totalTasks++; // Broji koliko je zadataka prošlo
+            totalTasks++; // Count how many tasks have passed
 
             if (totalTasks >= maxTasks) {
-                endQuiz(); // Kraj kviza nakon zadatog broja zadataka
+                endQuiz(); // End quiz after the given number of tasks
             } else {
                 setTimeout(() => {
-                    feedbackEl.textContent = ''; // Briše povratnu informaciju
-                    answerInput.value = ''; // Briše prethodni odgovor
-                    generateQuestion(); // Postavlja novo pitanje
+                    feedbackEl.textContent = ''; // Clear feedback
+                    answerInput.value = ''; // Clear previous answer
+                    generateQuestion(); // Generate a new question
                 }, 1000);
             }
         }
 
-        // Funkcija koja završava kviz i prikazuje rezultate
+        // Function to end the quiz and display results
         function endQuiz() {
-            quizSection.style.display = 'none'; // Skriva kviz sekciju
-            resultsSection.style.display = 'block'; // Prikazuje rezultate
+            quizSection.style.display = 'none'; // Hide quiz section
+            resultsSection.style.display = 'block'; // Show results
 
             const percentage = (correctAnswers / maxTasks) * 100;
-            correctPercentageEl.textContent = percentage.toFixed(2); // Prikazuje postotak točnih odgovora
+            correctPercentageEl.textContent = percentage.toFixed(2); // Show correct answer percentage
 
             const endTime = Date.now();
-            const totalTime = Math.floor((endTime - startTime) / 1000); // Računa ukupno vrijeme
-            totalTimeEl.textContent = totalTime; // Prikazuje ukupno vrijeme
+            const totalTime = Math.floor((endTime - startTime) / 1000); // Calculate total time
+            totalTimeEl.textContent = totalTime; // Show total time
 
-            // Provjera je li korisnik ispunio cilj
+            // Check if user achieved perfection
             if (percentage === 100) {
-                bravoMessageEl.style.display = 'block'; // Prikazuje BRAVOOOO poruku
+                bravoMessageEl.style.display = 'block'; // Show BRAVO message
             }
         }
 
-        // Event listener za početak kviza
+        // Event listener to start the quiz
         startBtn.addEventListener('click', () => {
-            maxRange = parseInt(rangeInput.value); // Postavlja raspon brojeva iz inputa
-            maxTasks = parseInt(taskCountInput.value); // Postavlja broj zadataka iz inputa
-            quizSection.style.display = 'block'; // Prikazuje kviz sekciju
-            resultsSection.style.display = 'none'; // Skriva sekciju s rezultatima
-            bravoMessageEl.style.display = 'none'; // Skriva BRAVOOOO poruku
+            maxRange = parseInt(rangeInput.value); // Set range from input
+            maxTasks = parseInt(taskCountInput.value); // Set number of tasks from input
+            quizSection.style.display = 'block'; // Show quiz section
+            resultsSection.style.display = 'none'; // Hide results section
+            bravoMessageEl.style.display = 'none'; // Hide BRAVO message
             correctAnswers = 0;
             totalTasks = 0;
 
-            startTime = Date.now(); // Početno vrijeme
+            startTime = Date.now(); // Start time
 
-            generateQuestion(); // Pokreće prvo pitanje
+            generateQuestion(); // Start first question
         });
 
-        // Event listener za klik na "Pošalji" gumb
+        // Event listener to handle click on the "Submit" button
         submitBtn.addEventListener('click', () => {
-            const userAnswer = parseInt(answerInput.value); // Dohvaća korisnikov odgovor
+            const userAnswer = parseInt(answerInput.value); // Get user's answer
 
-            if (!isNaN(userAnswer)) { // Provjerava je li odgovor valjan
-                clearInterval(timer); // Zaustavlja tajmer
+            if (!isNaN(userAnswer)) { // Check if answer is valid
+                clearInterval(timer); // Stop timer
                 if (userAnswer === correctAnswer) {
-                    feedbackEl.textContent = 'Točno!'; // Ako je točno
-                    handleNextQuestion(true); // Priprema sljedeće pitanje
+                    feedbackEl.textContent = 'Correct!'; // If correct
+                    handleNextQuestion(true); // Prepare next question
                 } else {
-                    feedbackEl.textContent = `Netočno! Točan odgovor je bio: ${correctAnswer}`; // Ako nije točno
-                    handleNextQuestion(false); // Priprema sljedeće pitanje
+                    feedbackEl.textContent = `Wrong! The correct answer was: ${correctAnswer}`; // If wrong
+                    handleNextQuestion(false); // Prepare next question
                 }
             } else {
-                feedbackEl.textContent = 'Molim te, upiši broj!'; // Ako nije unesen broj
+                feedbackEl.textContent = 'Please enter a number!'; // If not a number
             }
         });
 
-        // Event listener za pritisak na "Enter"
+        // Event listener to press "Enter"
         answerInput.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
-                submitBtn.click(); // Aktivira "Pošalji" gumb
+                submitBtn.click(); // Trigger "Submit" button
             }
         });
 
-        // Event listener za ponovno pokretanje kviza
+        // Event listener to restart the quiz
         startOverBtn.addEventListener('click', () => {
-            quizSection.style.display = 'none'; // Skriva kviz sekciju
-            resultsSection.style.display = 'none'; // Skriva sekciju s rezultatima
-            rangeInput.value = 12; // Resetira raspon na 12
-            taskCountInput.value = 10; // Resetira broj zadataka na 10
-            feedbackEl.textContent = ''; // Briše povratnu informaciju
+            quizSection.style.display = 'none'; // Hide quiz section
+            resultsSection.style.display = 'none'; // Hide results section
+            rangeInput.value = 12; // Reset range to 12
+            taskCountInput.value = 10; // Reset task count to 10
+            feedbackEl.textContent = ''; // Clear feedback
         });
     </script>
 </body>
