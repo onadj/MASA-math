@@ -15,74 +15,76 @@
             background-size: cover;
             background-position: center;
         }
-    
+
         .card {
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-    
+
         h1 {
             color: #ff5733;
             font-family: 'Comic Sans MS', cursive, sans-serif;
         }
-    
+
         .form-label {
             font-family: 'Comic Sans MS', cursive, sans-serif;
             color: #007bff;
         }
-    
+
         .btn {
             border-radius: 10px;
         }
-    
+
         .btn-primary {
             background-color: #ff5733;
             border-color: #ff5733;
         }
-    
+
         .btn-success {
             background-color: #28a745;
             border-color: #28a745;
         }
-    
+
         .btn-warning {
             background-color: #ffc107;
             border-color: #ffc107;
         }
-    
+
         #feedback {
             font-size: 20px;
             font-weight: bold;
             color: #333;
         }
-    
+
         #timer {
             font-size: 18px;
             font-weight: bold;
         }
-    
+
         #wrongAnswersList {
             font-family: 'Comic Sans MS', cursive, sans-serif;
         }
-    
+
         #bravoMessage {
             font-size: 28px;
             font-weight: bold;
             color: green;
         }
-    
+
         /* New styles for task number */
         #taskNumber {
             background-color: rgba(255, 255, 255, 0.8);
             border: 2px solid #007bff;
             border-radius: 10px;
             padding: 10px;
-            width: fit-content; /* Adjusts width to content */
-            margin: 0; /* Remove margin to align with other elements */
+            width: fit-content;
+            /* Adjusts width to content */
+            margin: 0;
+            /* Remove margin to align with other elements */
         }
     </style>
-    
+
 </head>
 
 <body class="bg-light">
@@ -121,7 +123,8 @@
                 <p class="text-center">Total time: <span id="totalTime"></span></p>
                 <h3 class="text-center mt-3">Wrong Answers:</h3>
                 <ul id="wrongAnswersList" class="list-group mb-3"></ul>
-                <p id="bravoMessage" class="text-center" style="display: none;">BRAVOOOO MASA!!!! DAD IS PROUD OF YOU!!!!!</p>
+                <p id="bravoMessage" class="text-center" style="display: none;">BRAVOOOO MASA!!!! DAD IS PROUD OF
+                    YOU!!!!!</p>
                 <button id="startOverBtn" class="btn btn-warning w-100">Start over</button>
             </div>
         </div>
@@ -190,6 +193,7 @@
             totalTasks++;
 
             if (totalTasks >= maxTasks) {
+                clearInterval(timer); // Ensure the timer is stopped when the quiz ends
                 endQuiz();
             } else {
                 setTimeout(() => {
@@ -207,13 +211,13 @@
 
         // Function to end the quiz and display results
         function endQuiz() {
+            const endTime = Date.now(); // Capture end time before any other operations
             quizSection.style.display = 'none';
             resultsSection.style.display = 'block';
 
             const percentage = (correctAnswers / maxTasks) * 100;
             correctPercentageEl.textContent = percentage.toFixed(2);
 
-            const endTime = Date.now();
             const totalTime = Math.floor((endTime - startTime) / 1000);
             const minutes = Math.floor(totalTime / 60);
             const seconds = totalTime % 60;
@@ -233,52 +237,52 @@
             }
         }
 
-        // Event listener to start the quiz
+        // Start button event
         startBtn.addEventListener('click', () => {
             maxRange = parseInt(rangeInput.value);
             maxTasks = parseInt(taskCountInput.value);
+            correctAnswers = 0;
+            totalTasks = 0;
+            wrongAnswers.length = 0; // Clear wrong answers array
+            startTime = Date.now(); // Capture start time
+
             quizSection.style.display = 'block';
             resultsSection.style.display = 'none';
             bravoMessageEl.style.display = 'none';
-            correctAnswers = 0;
-            totalTasks = 0;
-            wrongAnswers.length = 0;
-
-            startTime = Date.now();
 
             generateQuestion();
         });
 
-        // Event listener for "Submit" button
-        submitBtn.addEventListener('click', submitAnswer);
+        // Submit button event
+        submitBtn.addEventListener('click', () => {
+            const userAnswer = parseInt(answerInput.value);
 
-        // Event listener for pressing "Enter" key
-        answerInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                submitAnswer();
+            if (!isNaN(userAnswer)) {
+                if (userAnswer === correctAnswer) {
+                    feedbackEl.textContent = 'Correct!';
+                    handleNextQuestion(true);
+                } else {
+                    feedbackEl.textContent = `Wrong! The correct answer was: ${correctAnswer}`;
+                    recordWrongAnswer(questionEl.textContent, correctAnswer);
+                    handleNextQuestion(false);
+                }
             }
+
+            answerInput.value = '';
         });
 
-        // Function to submit the answer
-        function submitAnswer() {
-            const userAnswer = parseInt(answerInput.value);
-            if (userAnswer === correctAnswer) {
-                feedbackEl.textContent = 'Correct!';
-                handleNextQuestion(true);
-            } else {
-                feedbackEl.textContent = `Incorrect! The correct answer was: ${correctAnswer}`;
-                recordWrongAnswer(questionEl.textContent, correctAnswer);
-                handleNextQuestion(false);
-            }
-        }
-
-        // Event listener for "Start Over" button
+        // Start over button event
         startOverBtn.addEventListener('click', () => {
-            resultsSection.style.display = 'none';
             quizSection.style.display = 'none';
-            startBtn.style.display = 'block';
-            wrongAnswers.length = 0;
-            feedbackEl.textContent = '';
+            resultsSection.style.display = 'none';
+            bravoMessageEl.style.display = 'none';
+        });
+
+        // Enable Enter key to submit answer
+        answerInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                submitBtn.click();
+            }
         });
     </script>
 </body>
