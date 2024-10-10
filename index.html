@@ -15,12 +15,74 @@
             background-size: cover;
             background-position: center;
         }
-
+    
         .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+    
+        h1 {
+            color: #ff5733;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+    
+        .form-label {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: #007bff;
+        }
+    
+        .btn {
+            border-radius: 10px;
+        }
+    
+        .btn-primary {
+            background-color: #ff5733;
+            border-color: #ff5733;
+        }
+    
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+    
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+    
+        #feedback {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    
+        #timer {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    
+        #wrongAnswersList {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+    
+        #bravoMessage {
+            font-size: 28px;
+            font-weight: bold;
+            color: green;
+        }
+    
+        /* New styles for task number */
+        #taskNumber {
             background-color: rgba(255, 255, 255, 0.8);
-            /* Transparent card background */
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 10px;
+            width: fit-content; /* Adjusts width to content */
+            margin: 0; /* Remove margin to align with other elements */
         }
     </style>
+    
 </head>
 
 <body class="bg-light">
@@ -44,20 +106,22 @@
 
             <!-- Quiz section -->
             <div id="quizSection" style="display: none;">
+                <p id="taskNumber" class="h5 mb-3"></p>
                 <p id="question" class="h4 text-center"></p>
                 <input type="number" id="answer" class="form-control mb-3" placeholder="Type your answer here">
                 <button id="submitBtn" class="btn btn-success w-100 mb-3">Submit</button>
                 <p id="feedback" class="text-center fw-bold"></p>
-                <p id="timer" class="text-center text-danger">Time left: <span id="timeLeft">5</span> seconds</p>
+                <p id="timer" class="text-center text-danger">Time left: <span id="timeLeft">10</span> seconds</p>
             </div>
 
             <!-- Results section -->
             <div id="resultsSection" style="display: none;">
                 <h2 class="text-center">Results</h2>
                 <p class="text-center">Correct answer percentage: <span id="correctPercentage"></span>%</p>
-                <p class="text-center">Total time: <span id="totalTime"></span> seconds</p>
-                <p id="bravoMessage" class="text-center"
-                    style="display: none; font-size: 24px; font-weight: bold; color: green;">BRAVOOOO MASA!!!! DAD IS PROUD OF YOU!!!!!</p>
+                <p class="text-center">Total time: <span id="totalTime"></span></p>
+                <h3 class="text-center mt-3">Wrong Answers:</h3>
+                <ul id="wrongAnswersList" class="list-group mb-3"></ul>
+                <p id="bravoMessage" class="text-center" style="display: none;">BRAVOOOO MASA!!!! DAD IS PROUD OF YOU!!!!!</p>
                 <button id="startOverBtn" class="btn btn-warning w-100">Start over</button>
             </div>
         </div>
@@ -81,9 +145,12 @@
         const totalTimeEl = document.getElementById('totalTime');
         const bravoMessageEl = document.getElementById('bravoMessage');
         const startOverBtn = document.getElementById('startOverBtn');
+        const taskNumberEl = document.getElementById('taskNumber');
+        const wrongAnswersList = document.getElementById('wrongAnswersList');
 
         let correctAnswer, timeLeft, timer, maxRange, maxTasks;
         let correctAnswers = 0, totalTasks = 0, startTime;
+        const wrongAnswers = [];
 
         // Function to generate a new question
         function generateQuestion() {
@@ -91,13 +158,14 @@
             const num2 = Math.floor(Math.random() * maxRange) + 1;
             correctAnswer = num1 * num2;
             questionEl.textContent = `${num1} x ${num2}`;
-            startTimer(); // Start timer after generating question
+            taskNumberEl.textContent = `Task ${totalTasks + 1} of ${maxTasks}`;
+            startTimer();
         }
 
         // Function to start the timer
         function startTimer() {
-            clearInterval(timer); // Ensures previous timer is stopped
-            timeLeft = 10; // Sets time to 10 seconds
+            clearInterval(timer);
+            timeLeft = 10;
             timerEl.textContent = timeLeft;
 
             timer = setInterval(() => {
@@ -107,7 +175,8 @@
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     feedbackEl.textContent = `Time's up! The correct answer was: ${correctAnswer}`;
-                    handleNextQuestion(false); // If time runs out
+                    recordWrongAnswer(questionEl.textContent, correctAnswer);
+                    handleNextQuestion(false);
                 }
             }, 1000);
         }
@@ -118,84 +187,98 @@
                 correctAnswers++;
             }
 
-            totalTasks++; // Count how many tasks have passed
+            totalTasks++;
 
             if (totalTasks >= maxTasks) {
-                endQuiz(); // End quiz after the given number of tasks
+                endQuiz();
             } else {
                 setTimeout(() => {
-                    feedbackEl.textContent = ''; // Clear feedback
-                    answerInput.value = ''; // Clear previous answer
-                    generateQuestion(); // Generate a new question
+                    feedbackEl.textContent = '';
+                    answerInput.value = '';
+                    generateQuestion();
                 }, 1000);
             }
         }
 
+        // Function to record wrong answers
+        function recordWrongAnswer(question, correctAnswer) {
+            wrongAnswers.push({ question, correctAnswer });
+        }
+
         // Function to end the quiz and display results
         function endQuiz() {
-            quizSection.style.display = 'none'; // Hide quiz section
-            resultsSection.style.display = 'block'; // Show results
+            quizSection.style.display = 'none';
+            resultsSection.style.display = 'block';
 
             const percentage = (correctAnswers / maxTasks) * 100;
-            correctPercentageEl.textContent = percentage.toFixed(2); // Show correct answer percentage
+            correctPercentageEl.textContent = percentage.toFixed(2);
 
             const endTime = Date.now();
-            const totalTime = Math.floor((endTime - startTime) / 1000); // Calculate total time
-            totalTimeEl.textContent = totalTime; // Show total time
+            const totalTime = Math.floor((endTime - startTime) / 1000);
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            totalTimeEl.textContent = `${minutes} minutes and ${seconds} seconds`;
 
-            // Check if user achieved perfection
+            // Display wrong answers
+            wrongAnswersList.innerHTML = '';
+            wrongAnswers.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = `${item.question} = ${item.correctAnswer}`;
+                wrongAnswersList.appendChild(li);
+            });
+
             if (percentage === 100) {
-                bravoMessageEl.style.display = 'block'; // Show BRAVO message
+                bravoMessageEl.style.display = 'block';
             }
         }
 
         // Event listener to start the quiz
         startBtn.addEventListener('click', () => {
-            maxRange = parseInt(rangeInput.value); // Set range from input
-            maxTasks = parseInt(taskCountInput.value); // Set number of tasks from input
-            quizSection.style.display = 'block'; // Show quiz section
-            resultsSection.style.display = 'none'; // Hide results section
-            bravoMessageEl.style.display = 'none'; // Hide BRAVO message
+            maxRange = parseInt(rangeInput.value);
+            maxTasks = parseInt(taskCountInput.value);
+            quizSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+            bravoMessageEl.style.display = 'none';
             correctAnswers = 0;
             totalTasks = 0;
+            wrongAnswers.length = 0;
 
-            startTime = Date.now(); // Start time
+            startTime = Date.now();
 
-            generateQuestion(); // Start first question
+            generateQuestion();
         });
 
-        // Event listener to handle click on the "Submit" button
-        submitBtn.addEventListener('click', () => {
-            const userAnswer = parseInt(answerInput.value); // Get user's answer
+        // Event listener for "Submit" button
+        submitBtn.addEventListener('click', submitAnswer);
 
-            if (!isNaN(userAnswer)) { // Check if answer is valid
-                clearInterval(timer); // Stop timer
-                if (userAnswer === correctAnswer) {
-                    feedbackEl.textContent = 'Correct!'; // If correct
-                    handleNextQuestion(true); // Prepare next question
-                } else {
-                    feedbackEl.textContent = `Wrong! The correct answer was: ${correctAnswer}`; // If wrong
-                    handleNextQuestion(false); // Prepare next question
-                }
-            } else {
-                feedbackEl.textContent = 'Please enter a number!'; // If not a number
-            }
-        });
-
-        // Event listener to press "Enter"
+        // Event listener for pressing "Enter" key
         answerInput.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
-                submitBtn.click(); // Trigger "Submit" button
+                submitAnswer();
             }
         });
 
-        // Event listener to restart the quiz
+        // Function to submit the answer
+        function submitAnswer() {
+            const userAnswer = parseInt(answerInput.value);
+            if (userAnswer === correctAnswer) {
+                feedbackEl.textContent = 'Correct!';
+                handleNextQuestion(true);
+            } else {
+                feedbackEl.textContent = `Incorrect! The correct answer was: ${correctAnswer}`;
+                recordWrongAnswer(questionEl.textContent, correctAnswer);
+                handleNextQuestion(false);
+            }
+        }
+
+        // Event listener for "Start Over" button
         startOverBtn.addEventListener('click', () => {
-            quizSection.style.display = 'none'; // Hide quiz section
-            resultsSection.style.display = 'none'; // Hide results section
-            rangeInput.value = 12; // Reset range to 12
-            taskCountInput.value = 10; // Reset task count to 10
-            feedbackEl.textContent = ''; // Clear feedback
+            resultsSection.style.display = 'none';
+            quizSection.style.display = 'none';
+            startBtn.style.display = 'block';
+            wrongAnswers.length = 0;
+            feedbackEl.textContent = '';
         });
     </script>
 </body>
